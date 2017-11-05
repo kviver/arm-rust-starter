@@ -1,0 +1,21 @@
+[package]
+name = "rust_lib"
+version = "0.0.1"
+authors = ["User User <user@user.com>"]
+description = "First try to link rust and c on cortex"
+keywords = ["arm", "cortex-m"]
+categories = ["embedded", "no-std"]
+license = "MIT"
+repository = ""
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+#cortex-m = "0.2.7"
+#cortex-m-rt = "0.2.3"
+
+
+[profile.release]
+lto = true
+debug = true

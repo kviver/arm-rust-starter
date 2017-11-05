@@ -1,0 +1,11 @@
+version: '3'
+services:
+  dev:
+    build: .
+    privileged: true
+    tty: true
+    stdin_open: true
+    volumes:
+     - .:/project
+     - /dev/bus/usb:/dev/bus/usb
+    working_dir: "/project"
