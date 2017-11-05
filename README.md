@@ -1,4 +1,4 @@
-# Hermitool firmware sandbox
+# ARM+Rust FFI starter kit
 
 ## Using docker
 Run `docker-compose up -d`, then use `docker-compose exec dev bash` to get a shell with all the tools installed.
