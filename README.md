@@ -3,11 +3,9 @@
 ## Using docker
 Run `docker-compose up -d`, then use `docker-compose exec dev bash` to get a shell with all the tools installed.
 
-## Using rust
-main c-code using simple function from Rust, having full path to it in Makefile
-Go to `rust_lib/`
+## How to build this
 
-1. Create new STM32CubeMX into project dir.
+1. Create new STM32CubeMX project into project dir.
 2. Add to makefile:
 
 ```
@@ -22,12 +20,10 @@ LIBDIR += -L$(RUST_LIB_BUILD)
 
 $(RUST_LIB_BUILD)/lib$(RUST_LIB_NAME).a:
 	cd $(RUST_LIB_SRC) && xargo build
-	
-$(BUILD_DIR)/$(TARGET).elf: $(RUST_LIB_BUILD)/lib$(RUST_LIB_NAME).a $(OBJECTS) Makefile
-	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
-	$(SZ) $@
 ```
-3. also add app_task() and app_static_init() call to main.c, GPIO port/pin macro static exports, device pointers getter (get_huar2, for example)
+add `$(RUST_LIB_BUILD)/lib$(RUST_LIB_NAME).a` dependency to `$(BUILD_DIR)/$(TARGET).elf:`
+
+3. also add app_task() and app_static_init() call to main.c, GPIO port/pin macro static exports, device pointers getter (get_huart2, for example)
 ```
 void app_init_statics();
 void app_task();
