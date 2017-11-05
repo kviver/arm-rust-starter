@@ -5,17 +5,13 @@
 #![feature(core_float)]
 #![feature(proc_macro)]
 
-extern crate bitfield_register;
-
 mod cmsis_os;
 mod mutex_semaphore;
 mod gpio_pin;
 mod hal;
 
-mod spi;
 #[macro_use]
 mod uart_printf;
-
 
 use core::cell::UnsafeCell;
 
@@ -24,11 +20,7 @@ use gpio_pin::{GPIOPin};
 use hal::{
     HAL_LD2_GPIO_Port,
     HAL_LD2_Pin,
-    HAL_CONTROL_LATCH_GPIO_Port,
-    HAL_CONTROL_LATCH_Pin,
-    SPI_HandleTypeDef,
     UART_HandleTypeDef,
-    get_hspi2, get_hspi3,
     get_huart2
 };
 
@@ -84,15 +76,20 @@ impl<T> StaticMutexSemaphore<T> {
 unsafe impl<T> Sync for StaticMutexSemaphore<T> {}
 
 #[no_mangle]
-pub extern "C" fn rust_init_statics() {
+pub extern "C" fn app_init_statics() {
     UART2.init(unsafe{get_huart2()});
 }
 
 pub static UART2: StaticMutexSemaphore<*mut UART_HandleTypeDef> = StaticMutexSemaphore::new();
 
 #[no_mangle]
-pub extern "C" fn rust_blink_task() {
-    debug_println!("==== mtester started =====");
+pub extern "C" fn app_task() {
+    debug_println!("\n\n==== arm/rust started =====");
+
+    let mut ld2_pin = GPIOPin {
+        gpio_port: unsafe { HAL_LD2_GPIO_Port },
+        pin: unsafe { HAL_LD2_Pin },
+    };
 
     loop {
         ld2_pin.toggle();

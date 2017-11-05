@@ -7,8 +7,8 @@ Run `docker-compose up -d`, then use `docker-compose exec dev bash` to get a she
 main c-code using simple function from Rust, having full path to it in Makefile
 Go to `rust_lib/`
 
-Create new STM32CubeMX into project dir.
-Add to makefile:
+1. Create new STM32CubeMX into project dir.
+2. Add to makefile:
 
 ```
 # libraries
@@ -17,18 +17,38 @@ LIBS += -l$(RUST_LIB_NAME)
 RUST_LIB_SRC = rust_lib
 RUST_LIB_BUILD = $(RUST_LIB_SRC)/target/thumbv7em-none-eabihf/debug
 LIBDIR += -L$(RUST_LIB_BUILD)
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 .PHONY: $(RUST_LIB_BUILD)/lib$(RUST_LIB_NAME).a
 
+$(RUST_LIB_BUILD)/lib$(RUST_LIB_NAME).a:
+	cd $(RUST_LIB_SRC) && xargo build
+	
 $(BUILD_DIR)/$(TARGET).elf: $(RUST_LIB_BUILD)/lib$(RUST_LIB_NAME).a $(OBJECTS) Makefile
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 	$(SZ) $@
 ```
+3. also add app_task() and app_static_init() call to main.c, GPIO port/pin macro static exports, device pointers getter (get_huar2, for example)
+```
+void app_init_statics();
+void app_task();
+```
+```
+GPIO_TypeDef* HAL_LD2_GPIO_Port = LD2_GPIO_Port;
+uint16_t HAL_LD2_Pin = LD2_Pin;
+```
+```
+UART_HandleTypeDef* get_huart2(){
+  return &huart2;
+}
+```
 
-Compile library
+4. don't forget binpath in makefile (`BINPATH = /usr/bin/`, for example)
 
+5. Compile
 `make`
+
+6. Flash uС
+`./deploy.sh`
 
 To debug Rust code use 
 `RUST_GDB=arm-none-eabi-gdb rust-gdb <path to .elf file>`

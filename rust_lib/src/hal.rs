@@ -5,9 +5,6 @@ pub struct GPIO_TypeDef;
 pub struct UART_HandleTypeDef;
 
 #[repr(C)]
-pub struct SPI_HandleTypeDef;
-
-#[repr(C)]
 pub enum GPIO_PinState {
     GPIO_PIN_RESET = 0,
     GPIO_PIN_SET   = 1,
@@ -25,21 +22,9 @@ extern {
     pub fn HAL_GPIO_WritePin(GPIOx: *mut GPIO_TypeDef, GPIO_Pin: u16, PinState: GPIO_PinState);
     pub fn HAL_GPIO_TogglePin(GPIOx: *mut GPIO_TypeDef, GPIO_Pin: u16);
     pub fn HAL_UART_Transmit_IT(huart: *mut UART_HandleTypeDef, pData: *const u8, Size: u16) -> HAL_StatusTypeDef;
-    pub fn HAL_SPI_Transmit_IT(hspi: *mut SPI_HandleTypeDef, pData: *const u8, Size: u16) -> HAL_StatusTypeDef;
-    pub fn HAL_SPI_TransmitReceive_IT(
-        hspi: *mut SPI_HandleTypeDef,
-        pTxData: *const u8,
-        pRxData: *mut u8,
-        Size: u16
-    ) -> HAL_StatusTypeDef;
-
+    
     pub static HAL_LD2_GPIO_Port: *mut GPIO_TypeDef;
     pub static HAL_LD2_Pin: u16;
-
-    pub static HAL_CONTROL_LATCH_GPIO_Port: *mut GPIO_TypeDef;
-    pub static HAL_CONTROL_LATCH_Pin: u16;
-
-    pub fn get_hspi3() -> *mut SPI_HandleTypeDef;
-    pub fn get_hspi2() -> *mut SPI_HandleTypeDef;
+    
     pub fn get_huart2() -> *mut UART_HandleTypeDef;
 }
