@@ -5,8 +5,8 @@ Run `docker-compose up -d`, then use `docker-compose exec dev bash` to get a she
 
 ## How to build this
 
-1. Create new STM32CubeMX project into project dir.
-2. Add to makefile:
+1. Create new STM32CubeMX makefile project with freertos into project dir.
+2. Add to makefile after `all` target:
 
 ```
 # libraries
@@ -23,10 +23,11 @@ $(RUST_LIB_BUILD)/lib$(RUST_LIB_NAME).a:
 ```
 add `$(RUST_LIB_BUILD)/lib$(RUST_LIB_NAME).a` dependency to `$(BUILD_DIR)/$(TARGET).elf:`
 
+add `cd $(RUST_LIB_SRC) && cargo clean` to `make clean` target
+
 3. also add app_task() and app_static_init() call to main.c, GPIO port/pin macro static exports, device pointers getter (get_huart2, for example)
 ```
-void app_init_statics();
-void app_task();
+void rust_main_task();
 ```
 ```
 GPIO_TypeDef* HAL_LD2_GPIO_Port = LD2_GPIO_Port;

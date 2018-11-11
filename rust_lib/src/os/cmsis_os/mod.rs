@@ -4,75 +4,20 @@ use core::cell::UnsafeCell;
 use core::ops::Deref;
 use core::ops::DerefMut;
 
-#[repr(C)]
-#[derive(PartialEq, Eq)]
-pub enum osStatus {
-    osOK = 0,
-    osErrorOS = 0xFF,
-}
-
-#[repr(C)]
-pub struct osMutexDef_t {
-  dummy: u32,
-// #if( configSUPPORT_STATIC_ALLOCATION == 1 )
-//   osStaticMutexDef_t         *controlblock;      ///< control block for static allocation; NULL for dynamic allocation
-// #endif
-}
-
-impl osMutexDef_t {
-    pub const fn new() -> osMutexDef_t {
-        return osMutexDef_t { dummy: 0 };
-    }
-}
-
-#[repr(C)]
-pub struct osSemaphoreDef_t {
-  dummy: u32,
-// #if( configSUPPORT_STATIC_ALLOCATION == 1 )
-//   osStaticSemaphoreDef_t     *controlblock;      ///< control block for static allocation; NULL for dynamic allocation
-// #endif
-}
-
-impl osSemaphoreDef_t {
-    pub const fn new() -> osSemaphoreDef_t {
-        return osSemaphoreDef_t { dummy: 0 };
-    }
-} 
-
-// opaque struct
-#[repr(C)]
-pub struct QueueHandle;
-
-pub type QueueHandle_t = *const QueueHandle;
-pub type SemaphoreHandle_t = QueueHandle_t;
-pub type osMutexId = SemaphoreHandle_t;
-pub type osSemaphoreId = SemaphoreHandle_t;
-
-
-extern {
-    pub fn osDelay(delay: u32) -> osStatus;
-
-    pub fn osMutexCreate(mutex_def: *const osMutexDef_t) -> osMutexId;
-    pub fn osMutexWait (mutex_id: osMutexId, millisec: u32) -> osStatus;
-    pub fn osMutexRelease (mutex_id: osMutexId ) -> osStatus;
-
-    pub fn osSemaphoreCreate (semaphore_def : *const osSemaphoreDef_t, count:i32) -> osSemaphoreId;
-    pub fn osSemaphoreWait (semaphore_id: osSemaphoreId, millisec: u32) -> i32;
-    pub fn osSemaphoreRelease (semaphore_id: osSemaphoreId) -> osStatus;
-}
-
-// #define osWaitForever     0xFFFFFFFF     ///< wait forever timeout value
-pub const osWaitForever : u32 = 0xFFFFFFFF;
+mod bindings;
+use self::bindings::*;
 
 struct InnerMutex {
     id: osMutexId,
 }
 
+#[allow(dead_code)]
 impl InnerMutex {
     pub fn new() -> InnerMutex {
-        let mutex_def = osMutexDef_t::new();
+        let mutex_def = osMutexDef_t { dummy: 0 };
         let mutex_id = unsafe { osMutexCreate(&mutex_def) };
-        if mutex_id == core::ptr::null() {
+        // mutex_id is actually a pointer
+        if mutex_id == 0 {
             panic!("Failed to create mutex");
         }
         InnerMutex {
@@ -107,6 +52,7 @@ pub struct MutexGuard<'a, T: 'a> {
     __lock: &'a Mutex<T>,
 }
 
+#[allow(dead_code)]
 impl<'mutex, T> MutexGuard<'mutex, T> {
     fn new(lock: &'mutex Mutex<T>) -> MutexGuard<'mutex, T> {
         MutexGuard {
@@ -115,6 +61,7 @@ impl<'mutex, T> MutexGuard<'mutex, T> {
     }
 }
 
+#[allow(dead_code)]
 impl<'mutex, T> Deref for MutexGuard<'mutex, T> {
     type Target = T;
 
@@ -123,12 +70,14 @@ impl<'mutex, T> Deref for MutexGuard<'mutex, T> {
     }
 }
 
+#[allow(dead_code)]
 impl<'mutex, T> DerefMut for MutexGuard<'mutex, T> {
     fn deref_mut(&mut self) -> &mut T {
         unsafe { &mut *self.__lock.data.get() }
     }
 }
 
+#[allow(dead_code)]
 impl<'a, T> Drop for MutexGuard<'a, T> {
     #[inline]
     fn drop(&mut self) {
@@ -136,6 +85,7 @@ impl<'a, T> Drop for MutexGuard<'a, T> {
     }
 }
 
+#[allow(dead_code)]
 impl<T> Mutex<T> {
     pub fn new(t: T) -> Mutex<T> {
         Mutex {
@@ -148,14 +98,12 @@ impl<T> Mutex<T> {
         self.inner.lock();
         MutexGuard::new(self)
     }
-}
 
-impl<T> Mutex<*mut T> {
-    pub fn matches(&self, t:*mut T) -> bool {
-        let local_ptr = unsafe { *(self.data.get()) };
-        return local_ptr == t;
+    pub unsafe fn unsafe_get(&self) -> &T {
+        &*self.data.get()
     }
 }
+
 
 unsafe impl<T> Sync for Mutex<T> {}
 
@@ -163,16 +111,30 @@ pub struct Semaphore {
     id: osSemaphoreId,
 }
 
+#[allow(dead_code)]
 impl Semaphore {
-    pub fn new(count: i32) -> Semaphore {
-        let semaphore_def = osSemaphoreDef_t::new();
-        let semaphore_id = unsafe { osSemaphoreCreate(&semaphore_def, count) };
-        if semaphore_id == core::ptr::null() {
+    pub fn new(count: u32) -> Semaphore {
+        assert!(count <= core::i32::MAX as u32);
+        let semaphore_def = osSemaphoreDef_t { dummy: 0 };
+        let semaphore_id = unsafe { osSemaphoreCreate(&semaphore_def, count as i32) };
+        // semaphore_id is actually a pointer
+        if semaphore_id == 0 {
             panic!("Failed to create semaphore");
         }
         Semaphore {
             id: semaphore_id
         }
+    }
+
+    // TODO it's a copy-paste, move to common code
+    pub fn empty(count: u32) -> Semaphore {
+        assert!(count <= core::i32::MAX as u32);
+        let res = Semaphore::new(count);
+        for _ in 0 .. count {
+            // semaphore created full
+            res.acquire();
+        }
+        return res;
     }
 
     pub fn acquire(&self) {

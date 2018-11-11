@@ -1,11 +1,12 @@
 version: '3'
 services:
   dev:
-    build: .
+    image: kviver/sdk:2018-02-03
     privileged: true
     tty: true
     stdin_open: true
     volumes:
      - .:/project
+     - .docker/cache/cargo_registry:/root/.cargo/registry
      - /dev/bus/usb:/dev/bus/usb
     working_dir: "/project"

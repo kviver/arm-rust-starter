@@ -1,1 +1,1 @@
-st-flash write build/hermitool.bin 0x08000000
+st-flash write `ls build/*.bin` 0x08000000

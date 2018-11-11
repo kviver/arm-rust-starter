@@ -12,9 +12,10 @@ repository = ""
 crate-type = ["staticlib"]
 
 [dependencies]
-#cortex-m = "0.2.7"
-#cortex-m-rt = "0.2.3"
+cfg-if = "0.1"
 
+[build-dependencies]
+bindgen = "0.33.1"
 
 [profile.release]
 lto = true
