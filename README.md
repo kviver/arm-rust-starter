@@ -54,5 +54,10 @@ uint16_t HAL_LD2_Pin = LD2_Pin;
 6. Flash uС
 `./deploy.sh`
 
+7. enjoy!
+
 To debug Rust code use 
 `RUST_GDB=arm-none-eabi-gdb rust-gdb <path to .elf file>`
+
+
+For regenerate bindings change `CACHE_BINDINGS` in `build.rs` to false and do `make`.
