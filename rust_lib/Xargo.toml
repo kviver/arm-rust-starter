@@ -1,7 +1,0 @@
-[dependencies.core]
-
-[dependencies.compiler_builtins]
-features = ["mem"]
-git = "https://github.com/rust-lang-nursery/compiler-builtins"
-rev = "8fe94f3553f92cd6ba21aadc852bd6a3e01194db"
-stage = 1
