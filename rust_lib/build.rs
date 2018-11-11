@@ -3,9 +3,11 @@ extern crate bindgen;
 use std::env;
 use std::path::PathBuf;
 
+const CACHE_BINDINGS: bool = true;
+
 fn generate_cmsis_os_bindings(out_path:PathBuf) {
     let result_path = out_path.join("cmsis_os_bindings.rs");
-    if result_path.is_file() {
+    if result_path.is_file() && CACHE_BINDINGS {
         return
     }
 
@@ -65,7 +67,7 @@ fn generate_cmsis_os_bindings(out_path:PathBuf) {
 
 fn generate_stm32_hal_bindings(out_path:PathBuf) {
     let result_path = out_path.join("stm32_hal_bindings.rs");
-    if result_path.is_file() {
+    if result_path.is_file() && CACHE_BINDINGS {
         return
     }
 
@@ -127,7 +129,7 @@ fn generate_stm32_hal_bindings(out_path:PathBuf) {
 
 fn generate_glue_bindings(out_path:PathBuf) {
     let result_path = out_path.join("glue_bindings.rs");
-    if result_path.is_file() {
+    if result_path.is_file() && CACHE_BINDINGS {
         return
     }
 

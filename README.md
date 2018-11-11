@@ -25,6 +25,8 @@ add `$(RUST_LIB_BUILD)/lib$(RUST_LIB_NAME).a` dependency to `$(BUILD_DIR)/$(TARG
 
 add `cd $(RUST_LIB_SRC) && cargo clean` to `make clean` target
 
+rm `-lc` from linker option
+
 3. also add app_task() and app_static_init() call to main.c, GPIO port/pin macro static exports, device pointers getter (get_huart2, for example)
 ```
 void rust_main_task();

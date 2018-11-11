@@ -1,7 +1,7 @@
 version: '3'
 services:
   dev:
-    image: kviver/sdk:2018-02-03
+    image: kviver/sdk:2018-06-05
     privileged: true
     tty: true
     stdin_open: true

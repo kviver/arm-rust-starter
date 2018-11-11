@@ -36,6 +36,6 @@ pub static LD2_PIN: Static<Mutex<GPIOPin>> = Static::new();
 pub fn init_pins() {
     LD2_PIN.init(Mutex::new(GPIOPin {
         gpio_port: unsafe { HAL_LD2_GPIO_Port },
-        pin: unsafe { HAL_LD2_Pin },
+        pin: HAL_LD2_Pin,
     }));
 }

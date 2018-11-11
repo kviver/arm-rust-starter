@@ -17,14 +17,14 @@ use peripheral::{Static};
 
 use hal::uart_printf::{UART};
 
-pub struct STM32_UART {
+pub struct Stm32Uart {
     uart: *mut UART_HandleTypeDef,
     semaphore: Semaphore,
 }
 
-impl STM32_UART {
-    fn new(uart: *mut UART_HandleTypeDef) -> STM32_UART {
-        STM32_UART {
+impl Stm32Uart {
+    fn new(uart: *mut UART_HandleTypeDef) -> Stm32Uart {
+        Stm32Uart {
             uart,
             semaphore: Semaphore::empty(1),
         }
@@ -53,7 +53,7 @@ impl STM32_UART {
     }
 }
 
-impl UART for STM32_UART {
+impl UART for Stm32Uart {
     fn write(&self, s: &str){
         let bytes = s.as_bytes();
         for chunk in bytes.chunks(core::u16::MAX as usize) {
@@ -62,7 +62,7 @@ impl UART for STM32_UART {
     }
 }
 
-impl Release<UART_HandleTypeDef> for STM32_UART {
+impl Release<UART_HandleTypeDef> for Stm32Uart {
     fn checked_release(&self, ptr:*mut UART_HandleTypeDef) {
         if self.uart == ptr {
             self.semaphore.release();
@@ -70,20 +70,20 @@ impl Release<UART_HandleTypeDef> for STM32_UART {
     }
 }
 
-impl_uart_write!(STM32_UART);
+impl_uart_write!(Stm32Uart);
 
-pub static DEBUG_UART: Static<Mutex<STM32_UART>> = Static::new();
-pub static ALL_UARTS: [&Static<Mutex<STM32_UART>>;1] = [&DEBUG_UART];
+pub static DEBUG_UART: Static<Mutex<Stm32Uart>> = Static::new();
+pub static ALL_UARTS: [&Static<Mutex<Stm32Uart>>;1] = [&DEBUG_UART];
 
 pub fn debug_uart_init_static() {
     DEBUG_UART.init(
         Mutex::new(
-            STM32_UART::new(unsafe { &mut huart2 })
+            Stm32Uart::new(unsafe { &mut huart2 })
         )
     );
 }
 
-pub fn debug_uart_get() -> &'static Mutex<STM32_UART> {
+pub fn debug_uart_get() -> &'static Mutex<Stm32Uart> {
     DEBUG_UART.get()
 }
 

@@ -1,5 +1,5 @@
 #![cfg_attr(not(unix), no_std)]
-#![feature(lang_items)]
+#![feature(panic_implementation)]
 #![feature(const_fn)]
 
 #[macro_use]
@@ -40,23 +40,13 @@ pub extern "C" fn rust_main_task() -> ! {
 
 cfg_if! {
     if #[cfg(all(target_arch="arm", target_os="none"))] {
-        // These functions are used by the compiler, but not
-        // for a bare-bones hello world. These are normally
-        // provided by libstd.
-        #[lang = "eh_personality"]
-        #[no_mangle]
-        pub extern fn rust_eh_personality() {}
+        use core::panic::PanicInfo;
 
-        // This function may be needed based on the compilation target.
-        #[lang = "eh_unwind_resume"]
+        // FIXME no_mangle should not be required
+        // https://github.com/rust-lang/rust/issues/51342
+        #[panic_implementation]
         #[no_mangle]
-        pub extern fn rust_eh_unwind_resume() {}
-
-        #[lang = "panic_fmt"]
-        #[no_mangle]
-        pub extern fn rust_begin_panic(_msg: core::fmt::Arguments,
-                                       _file: &'static str,
-                                       _line: u32) -> ! {
+        fn panic(_info: &PanicInfo) -> ! {
             loop {}
         }
 
