@@ -7,7 +7,8 @@ use os::{Mutex, Semaphore};
 use hal::stm32_hal::bindings::{
     UART_HandleTypeDef,
     HAL_UART_Transmit_IT,
-    HAL_StatusTypeDef
+    HAL_StatusTypeDef,
+    huart2
 };
 
 use super::release::{checked_release, Release};
@@ -75,13 +76,11 @@ pub static DEBUG_UART: Static<Mutex<STM32_UART>> = Static::new();
 pub static ALL_UARTS: [&Static<Mutex<STM32_UART>>;1] = [&DEBUG_UART];
 
 pub fn debug_uart_init_static() {
-    /*
     DEBUG_UART.init(
         Mutex::new(
             STM32_UART::new(unsafe { &mut huart2 })
         )
     );
-    */
 }
 
 pub fn debug_uart_get() -> &'static Mutex<STM32_UART> {

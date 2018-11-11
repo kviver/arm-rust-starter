@@ -153,6 +153,8 @@ fn generate_glue_bindings(out_path:PathBuf) {
         // without this it generates `pub type __uint32_t = ::std::os::raw::c_uint;`
         .whitelist_recursively(false)
 
+        .whitelist_var("huart2")
+
         .whitelist_var("HAL_LD2_GPIO_Port")
         .whitelist_var("HAL_LD2_Pin")
 

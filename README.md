@@ -5,7 +5,7 @@ Run `docker-compose up -d`, then use `docker-compose exec dev bash` to get a she
 
 ## How to build this
 
-1. Create new STM32CubeMX makefile project with freertos into project dir.
+1. Create new STM32CubeMX makefile project with freertos into project dir. Main task needs at least 256 words of stack.
 2. Add to makefile after `all` target:
 
 ```
